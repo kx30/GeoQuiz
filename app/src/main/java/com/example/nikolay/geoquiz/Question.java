@@ -8,7 +8,6 @@ public class Question {
     public Question(int mTextResId, boolean mAnswerTrue) {
         this.mTextResId = mTextResId;
         this.mAnswerTrue = mAnswerTrue;
-
     }
 
     public int getTextResId() {
