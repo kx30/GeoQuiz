@@ -14,7 +14,8 @@ import android.widget.Toast;
 public class QuizActivity extends AppCompatActivity {
 
     private static final String TAG = "QuizActivity";
-    private static final String KEY_INDEX = "Index";
+    private static final String KEY_CURRENT_INDEX = "mCurrentIndex";
+    private static final String KEY_SET_CHEATER_INDEX = "setCheater";
     private static final int REQUEST_CODE_CHEAT = 0;
 
     private Button mTrueButton;
@@ -39,7 +40,6 @@ public class QuizActivity extends AppCompatActivity {
     private int rightAnswers = 0;
     private int mAmountOfAnswers = 0;
 
-    private boolean mIsCheater;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -50,9 +50,7 @@ public class QuizActivity extends AppCompatActivity {
             if (data == null) {
                 return;
             }
-            mIsCheater = CheatActivity.wasAnswerShown(data);
             mQuestionBank[mCurrentIndex].setCheater(true);
-            Log.i(TAG, String.valueOf(mQuestionBank[mCurrentIndex].getTextResId()));
         }
     }
 
@@ -63,9 +61,9 @@ public class QuizActivity extends AppCompatActivity {
         setContentView(R.layout.activity_quiz);
 
         if (savedInstanceState != null) {
-            mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
-            mIsCheater = savedInstanceState.getBoolean(KEY_INDEX);
-            mQuestionBank[mCurrentIndex].setCheater(savedInstanceState.getBoolean(KEY_INDEX));
+            mCurrentIndex = savedInstanceState.getInt(KEY_CURRENT_INDEX, 0);
+            mQuestionBank[mCurrentIndex].setCheater(savedInstanceState.getBoolean(KEY_SET_CHEATER_INDEX));
+            Log.i(TAG, "Current index: " + mCurrentIndex);
         }
 
         mQuestionTextView = (TextView) findViewById(R.id.question_text_view);
@@ -92,7 +90,6 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 updateCurrentIndex();
-                mIsCheater = false;
                 updateQuestion();
                 isAnswered();
             }
@@ -157,9 +154,8 @@ public class QuizActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         Log.i(TAG, "OnSaveInstanceState");
-        outState.putInt(KEY_INDEX, mCurrentIndex);
-        outState.putBoolean(KEY_INDEX, mIsCheater);
-        outState.putBoolean(KEY_INDEX, mQuestionBank[mCurrentIndex].isCheater());
+        outState.putInt(KEY_CURRENT_INDEX, mCurrentIndex);
+        outState.putBoolean(KEY_SET_CHEATER_INDEX, mQuestionBank[mCurrentIndex].isCheater());
     }
 
     @Override
@@ -196,7 +192,7 @@ public class QuizActivity extends AppCompatActivity {
 
         int messageResId;
 
-        if (mIsCheater || mQuestionBank[mCurrentIndex].isCheater()) {
+        if (mQuestionBank[mCurrentIndex].isCheater()) {
             messageResId = R.string.judgment_toast;
         } else if (userPressedTrue == answerIsTrue) {
             messageResId = R.string.correct_toast;
